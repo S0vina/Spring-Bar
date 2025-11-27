@@ -1,6 +1,6 @@
-package com.hillan.bar.hillanBar.repository;
+package com.spring.bar.springBar.repository;
 
-import com.hillan.bar.hillanBar.entity.Mesa;
+import com.spring.bar.springBar.entity.Mesa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;

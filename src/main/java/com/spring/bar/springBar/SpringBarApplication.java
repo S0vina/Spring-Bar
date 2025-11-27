@@ -1,13 +1,13 @@
-package com.hillan.bar.hillanBar;
+package com.spring.bar.springBar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HillanBarApplication {
+public class SpringBarApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HillanBarApplication.class, args);
+		SpringApplication.run(SpringBarApplication.class, args);
 	}
 
 }

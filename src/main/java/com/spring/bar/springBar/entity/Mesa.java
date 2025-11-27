@@ -1,7 +1,6 @@
-package com.hillan.bar.hillanBar.entity;
+package com.spring.bar.springBar.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Comment;
 
 @Entity
 @Table (name = "mesas")

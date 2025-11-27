@@ -1,4 +1,4 @@
-package com.hillan.bar.hillanBar.entity;
+package com.spring.bar.springBar.entity;
 
 import jakarta.persistence.*;
 import java.util.List;

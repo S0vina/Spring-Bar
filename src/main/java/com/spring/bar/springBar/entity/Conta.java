@@ -1,14 +1,19 @@
 package com.spring.bar.springBar.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(name = "Contas")
-
-public class Conta {
+@Data
+@NoArgsConstructor
+public class
+Conta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

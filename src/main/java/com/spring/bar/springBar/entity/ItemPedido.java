@@ -1,9 +1,13 @@
 package com.spring.bar.springBar.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "itensPedidos")
+@Data
+@NoArgsConstructor
 public class ItemPedido {
 
     @Id

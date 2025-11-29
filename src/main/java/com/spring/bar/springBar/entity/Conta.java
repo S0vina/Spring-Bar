@@ -56,7 +56,8 @@ Conta {
     public enum StatusConta {
         ABERTA,
         FECHADA,
-        PAGA
+        PAGA,
+        AGUARDANDO_PAGAMENNTO
     }
 
 }

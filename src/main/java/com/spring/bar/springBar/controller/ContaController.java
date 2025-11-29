@@ -6,6 +6,7 @@ import com.spring.bar.springBar.entity.ItemPedido;
 import com.spring.bar.springBar.entity.Pagamento;
 import com.spring.bar.springBar.service.ContaService;
 import com.spring.bar.springBar.service.ItemPedidoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +73,7 @@ public class ContaController {
      * Corpo: { "motivo": "Produto errado" }
      */
     @DeleteMapping("/{contaId}/pedidos/{itemPedidoId}")
-    public ResponseEntity<ItemPedido> cancelarItemPedido(@PathVariable int contaId,
+    public ResponseEntity<ItemPedido> cancelarItemPedido(@PathVariable Long contaId,
                                                          @PathVariable long itemPedidoId,
                                                          @RequestBody CancelamentoDTO dadosCancelamento) {
         // Usa o DTO para receber o motivo
@@ -86,20 +87,17 @@ public class ContaController {
     }
 
     /**
-     * [GARÇOM] Registrar pagamentos (parciais ou totais).
+     * [GARÇOM] Registrar pagamento na conta.
      * Endpoint: POST /api/contas/{contaId}/pagamentos
-     * Corpo: { "valor": 50.00, "tipo": "PIX" }
      */
     @PostMapping("/{contaId}/pagamentos")
-    public ResponseEntity<Pagamento> registrarPagamento(@PathVariable int contaId,
-                                                        @RequestBody PagamentoDTO dadosPagamento) {
-        // Usa o DTO para receber valor e tipo
+    public ResponseEntity<Pagamento> registrarPagamento(@PathVariable Long contaId, @Valid @RequestBody PagamentoDTO dadosPagamento) {
         Pagamento pagamento = contaService.registrarPagamento(
                 contaId,
-                dadosPagamento.getValor(),
-                dadosPagamento.getTipo()
+                dadosPagamento // Passa o DTO completo
         );
         return ResponseEntity.ok(pagamento);
+
     }
 
     /**

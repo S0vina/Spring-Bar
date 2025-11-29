@@ -1,14 +1,13 @@
 package com.spring.bar.springBar.service;
 
 
+import com.spring.bar.springBar.dto.PagamentoDTO;
 import com.spring.bar.springBar.entity.Conta;
 import com.spring.bar.springBar.entity.Mesa;
 import com.spring.bar.springBar.entity.ItemPedido;
 import com.spring.bar.springBar.entity.Produto;
 import com.spring.bar.springBar.entity.Pagamento;
-import com.spring.bar.springBar.entity.Configuracao; // NOVO: Importa a Entidade Configuracao
 import com.spring.bar.springBar.entity.Mesa.StatusMesa;
-import com.spring.bar.springBar.entity.Produto.categoriaProduto;
 
 import com.spring.bar.springBar.repository.ContaRepository;
 import com.spring.bar.springBar.repository.MesaRepository;
@@ -25,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -100,10 +98,10 @@ public class ContaService {
     }
 
     @Transactional
-    public ItemPedido cancelarItemPedido(int contaId, long itemPedidoId, String motivoCancelamento) {
+    public ItemPedido cancelarItemPedido(Long contaId, long itemPedidoId, String motivoCancelamento) {
 
         // Busca a conta para garantir que ela existe
-        contaRepository.findById(Long.valueOf(contaId))
+        contaRepository.findById(contaId)
                 .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada."));
 
         // Busca o item pedido específico
@@ -129,8 +127,8 @@ public class ContaService {
     }
 
     @Transactional
-    public ItemPedido adicionarPedido(int contaId, long produtoId, int quantidade) {
-        Conta conta = contaRepository.findById(Long.valueOf(contaId))
+    public ItemPedido adicionarPedido(Long contaId, long produtoId, int quantidade) {
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada."));
 
         if (conta.getMesa().getStatus() == StatusMesa.FECHADA) {
@@ -219,32 +217,59 @@ public class ContaService {
     }
 
     /**
-     * Registra pagamento na conta.
+     * [GARÇOM] Registra pagamento na conta.
+     * Requisito: Registrar pagamentos (parciais ou totais).
      */
     @Transactional
-    public Pagamento registrarPagamento(int contaId, double valor, String tipoPagamento) {
-        Conta conta = contaRepository.findById(Long.valueOf(contaId))
+    // Ajuste o tipo do ID para Long para consistência
+    public Pagamento registrarPagamento(Long contaId, PagamentoDTO dto) {
+
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada para registrar pagamento."));
 
-        double saldoAtual = calcularSaldoFinal(contaId);
-
-        if (valor <= 0) {
-            throw new IllegalArgumentException("Valor de pagamento deve ser positivo.");
+        // 1. Verifica o status da conta
+        if (conta.getStatus() == Conta.StatusConta.FECHADA) {
+            throw new IllegalStateException("Não é possível registrar pagamento em uma conta que já está FECHADA.");
         }
 
-        // Regra de Negócio: Não deve ser possível incluir pagamentos maiores que o valor da conta
-        if (valor > saldoAtual) {
-            throw new IllegalArgumentException("O pagamento de R$" + String.format("%.2f", valor) + " excede o saldo de R$" + String.format("%.2f", saldoAtual) + ".");
+        // 2. Calcula o Saldo Atual
+        // Chamamos o método que calcula o saldo total devido, subtraindo os pagamentos JÁ feitos.
+        double saldoDevido = calcularSaldoFinal(contaId);
+
+        // O valor do pagamento já é validado como > 0.01 pelo @Valid no Controller/DTO.
+        double valorPagamento = dto.getValor();
+
+        // 3. Regra de Negócio: Não deve ser possível incluir pagamentos que excedam o saldo devedor
+        // Usamos uma pequena tolerância para evitar erros de ponto flutuante.
+        final double TOLERANCIA_ZERO = 0.01;
+
+        if (valorPagamento > saldoDevido && Math.abs(valorPagamento - saldoDevido) > TOLERANCIA_ZERO) {
+            throw new IllegalArgumentException(
+                    "O pagamento de R$" + String.format("%.2f", valorPagamento) +
+                            " excede o saldo devedor de R$" + String.format("%.2f", saldoDevido) + "."
+            );
         }
 
-        // Cria e salva o objeto Pagamento
+        // 4. Cria e salva o objeto Pagamento
         Pagamento pagamento = new Pagamento();
         pagamento.setConta(conta);
-        pagamento.setValor(valor);
-        pagamento.setTipo(tipoPagamento); // Usa o tipo de pagamento recebido
+        pagamento.setValor(valorPagamento);
+        pagamento.setTipo(dto.getTipo());
         pagamento.setDataPagamento(LocalDateTime.now());
 
-        return pagamentoRepository.save(pagamento);
+        Pagamento pagamentoSalvo = pagamentoRepository.save(pagamento);
+
+        // 5. Atualiza o status da Conta/Mesa se o pagamento for TOTAL (Opcional, mas recomendado)
+        // Se o saldo após o pagamento for zero, podemos mudar o status da conta para 'AGUARDANDO_FECHAMENTO'
+        if (saldoDevido - valorPagamento < TOLERANCIA_ZERO) {
+            // Conta totalmente paga, mas ainda não fechada
+            conta.setStatus(Conta.StatusConta.AGUARDANDO_PAGAMENNTO);
+            // Mesa.StatusMesa.AGUARDANDO_PAGAMENTO seria o ideal, mas Mesa foi simplificada
+
+            contaRepository.save(conta);
+        }
+
+        return pagamentoSalvo;
     }
 
     /**

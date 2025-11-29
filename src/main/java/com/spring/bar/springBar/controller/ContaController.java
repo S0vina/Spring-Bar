@@ -2,11 +2,13 @@ package com.spring.bar.springBar.controller;
 
 import com.spring.bar.springBar.dto.AberturaContaDTO;
 import com.spring.bar.springBar.dto.CancelamentoDTO;
+import com.spring.bar.springBar.dto.ItemPedidoRequestDTO;
 import com.spring.bar.springBar.dto.PagamentoDTO;
 import com.spring.bar.springBar.entity.Conta;
 import com.spring.bar.springBar.entity.ItemPedido;
 import com.spring.bar.springBar.entity.Pagamento;
 import com.spring.bar.springBar.service.ContaService;
+import com.spring.bar.springBar.service.ItemPedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/contas")
 public class ContaController {
 
+    private final ItemPedidoService itemPedidoService;
+
     @Autowired
     private ContaService contaService;
+
+    public ContaController(ItemPedidoService itemPedidoService) {
+        this.itemPedidoService = itemPedidoService;
+    }
 
     // Um bom ControllerAdvice capturaria as exceções e retornaria um HTTP 404 (NoSuchElementException)
     // ou 400 (IllegalArgumentException/IllegalStateException). Por simplicidade, deixamos as exceções
@@ -53,12 +61,14 @@ public class ContaController {
      * Endpoint: POST /api/contas/{contaId}/pedidos?produtoId=...&quantidade=...
      */
     @PostMapping("/{contaId}/pedidos")
-    public ResponseEntity<ItemPedido> adicionarPedido(@PathVariable int contaId,
-                                                      @RequestParam long produtoId,
-                                                      @RequestParam int quantidade) {
-        ItemPedido item = contaService.adicionarPedido(contaId, produtoId, quantidade);
-        // Retorna 200 OK com o item criado/salvo
-        return ResponseEntity.ok(item);
+    public ResponseEntity<ItemPedido> adicionarPedido(@RequestBody ItemPedidoRequestDTO dto) {
+        ItemPedido novoItem = ItemPedidoService.adicionarItem(
+                dto.getContaId(),
+                dto.getProdutoId(),
+                dto.getQuantidade()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoItem);
     }
 
     /**

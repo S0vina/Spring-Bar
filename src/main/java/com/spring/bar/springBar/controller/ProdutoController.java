@@ -1,5 +1,6 @@
 package com.spring.bar.springBar.controller;
 
+import com.spring.bar.springBar.dto.ProdutoRequestDTO;
 import com.spring.bar.springBar.service.ProdutoService;
 import com.spring.bar.springBar.entity.Produto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class ProdutoController {
     // Endpoint para listar todos os produtos (pode ser usado pelo Garçom/Admin)
     @GetMapping
     public ResponseEntity<List<Produto>> listarCardapio() {
-        List<Produto> produtos = produtoService.listarTodos();
+        List<Produto> produtos = ProdutoService.listarTodos();
         return ResponseEntity.ok(produtos); // Retorna 200 OK
     }
 
@@ -30,11 +31,17 @@ public class ProdutoController {
      * [ADMIN] Cadastrar novo item no cardápio.
      * Endpoint: POST /api/cardapio
      */
-    @PostMapping
-    public ResponseEntity<Produto> cadastrarProduto(@RequestBody Produto produto) {
-        Produto novoProduto = produtoService.cadastrarProduto(produto);
-        // Retorna 201 Created
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoProduto);
+    @PostMapping("/api/cardapio")
+    public ResponseEntity<Produto> cadastrarProduto(@RequestBody ProdutoRequestDTO dto) {
+
+        // Converte DTO para entity
+        Produto novoProduto = produtoService.converterDtoParaEntidade(dto);
+
+        // Usando o service
+        Produto cadastrado = produtoService.salvar(novoProduto);
+
+        // Retorna 201 Created e o objeto salvo (com o ID gerado)
+        return ResponseEntity.status(HttpStatus.CREATED).body(cadastrado);
     }
 
     /**
@@ -43,10 +50,10 @@ public class ProdutoController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Produto> editarProduto(@PathVariable long id, @RequestBody Produto produtoAtualizado) {
-        Produto produtoEditado = produtoService.editarProduto(id, produtoAtualizado);
-        // Retorna 200 OK
+
+        Produto produtoEditado = produtoService.salvar(id, produtoAtualizado);
         return ResponseEntity.ok(produtoEditado);
     }
 
-    // Você também pode adicionar um endpoint DELETE, se necessário, para remover o item do cardápio.
+
 }

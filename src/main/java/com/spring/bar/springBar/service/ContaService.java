@@ -152,7 +152,7 @@ public class ContaService {
                 .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada para cálculo de saldo."));
 
         // NOVO: Obtem as configuracoes dinamicas do sistema
-        Configuracao config = configuracaoService.getConfiguracaoAtual();
+        Configuracao config = configuracaoService.buscarConfiguracaoAtual();
 
         double subtotalComidas = 0.0; // Base para gorjeta de Comida
         double subtotalBebidas = 0.0; // Base para gorjeta de Bebida
@@ -277,5 +277,10 @@ public class ContaService {
         pagamento.setDataPagamento(LocalDateTime.now());
 
         return pagamentoRepository.save(pagamento);
+    }
+
+    public Conta buscarContaPorId(Long id) {
+        return ContaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Conta nao encontrada com o ID: " + id));
     }
 }

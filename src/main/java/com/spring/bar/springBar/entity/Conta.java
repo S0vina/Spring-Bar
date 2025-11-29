@@ -3,6 +3,8 @@ package com.spring.bar.springBar.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -24,6 +26,9 @@ Conta {
     @JoinColumn(name = "mesaId", referencedColumnName = "id", nullable = false)
     private Mesa mesa;
 
+    @Enumerated(EnumType.STRING)
+    private StatusConta status = StatusConta.ABERTA;
+
     // Itens pedidos (produtos)
     // Se a conta for deletada, seus pedidos sao CASCADE.ALL
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,5 +46,10 @@ Conta {
     // Log de quando a conta foi aberta
     private LocalDateTime momentoAbertura;
 
+    public enum StatusConta {
+        ABERTA,
+        FECHADA,
+        PAGA
+    }
 
 }

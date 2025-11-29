@@ -1,5 +1,6 @@
 package com.spring.bar.springBar.controller;
 
+import com.spring.bar.springBar.dto.ConfiguracaoRequestDTO;
 import com.spring.bar.springBar.service.ConfiguracaoService;
 import com.spring.bar.springBar.entity.Configuracao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/config")
 public class ConfiguracaoController {
 
-    @Autowired
-    private ConfiguracaoService configuracaoService;
+    private final ConfiguracaoService configuracaoService;
+
+    public ConfiguracaoController(ConfiguracaoService configuracaoService) {
+        this.configuracaoService = configuracaoService;
+    }
+
+    @GetMapping
+    public ResponseEntity<Configuracao> buscarConfiguracao() {
+        Configuracao config = configuracaoService.buscarConfiguracaoAtual();
+        return ResponseEntity.ok(config);
+    }
+
+    @PostMapping
+    public ResponseEntity<Configuracao> atualizarConfiguracao(@RequestBody ConfiguracaoRequestDTO dto) {
+        Configuracao configAtualizada = configuracaoService.atualizarConfiguracao(dto);
+    }
+
+
 
     /**
      * [ADMIN] Visualiza as configurações atuais.
@@ -22,7 +39,7 @@ public class ConfiguracaoController {
      */
     @GetMapping
     public ResponseEntity<Configuracao> getConfiguracao() {
-        Configuracao config = configuracaoService.getConfiguracaoAtual();
+        Configuracao config = configuracaoService.buscarConfiguracaoAtual();
         return ResponseEntity.ok(config); // Retorna 200 OK
     }
 

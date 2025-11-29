@@ -1,7 +1,10 @@
 package com.spring.bar.springBar.service;
 
+import com.spring.bar.springBar.dto.ConfiguracaoRequestDTO;
 import com.spring.bar.springBar.entity.Configuracao; // Assumimos que esta Entidade existe
 import com.spring.bar.springBar.repository.ConfiguracaoRepository; // Assumimos que este Repositório existe
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,27 +15,33 @@ import java.util.NoSuchElementException;
 @Service
 public class ConfiguracaoService {
 
-    @Autowired
-    private ConfiguracaoRepository configuracaoRepository;
+    private final ConfiguracaoRepository configuracaoRepository;
 
     // Assumimos que haverá APENAS UM registro de configuração (ID fixo: 1)
-    private static final long CONFIG_ID = 1L;
+    private final long CONFIG_ID = 1L;
 
-    /**
-     * [ADMIN] Obtém as configurações atuais (percentuais de gorjeta, preço de entrada).
-     */
-    public Configuracao getConfiguracaoAtual() {
-        // Busca a única linha de configuração no banco. Se não existir, cria uma padrão.
-        return configuracaoRepository.findById(CONFIG_ID)
+    public ConfiguracaoService(ConfiguracaoRepository configuracaoRepository) {
+        this.configuracaoRepository = configuracaoRepository;
+    }
+
+    public Configuracao buscarConfiguracaoAtual() {
+        return configuracaoRepository.findById(1L)
                 .orElseGet(() -> {
-                    // Cria e salva uma configuração padrão se não existir.
-                    Configuracao defaultConfig = new Configuracao();
-                    defaultConfig.setId(CONFIG_ID);
-                    defaultConfig.setPrecoCouvert(10.00);
-                    defaultConfig.setPercGorjetaComida(0.15);
-                    defaultConfig.setPercGorjetaBebida(0.10);
-                    return configuracaoRepository.save(defaultConfig);
+                    Configuracao novaConfig = new Configuracao();
+                    return configuracaoRepository.save(novaConfig);
                 });
+    }
+
+    public Configuracao atualizarConnfiguracao(ConfiguracaoRequestDTO dto) {
+        // Buscar registro existente ou criar um novo
+        Configuracao config = buscarConfiguracaoAtual();
+
+        // Mapeamento automatico
+        config.setPrecoCouvert(dto.getPrecocCouvert());
+        config.setPercGorjetaComida(dto.getPercentualGorjetacomidas());
+        config.setPercGorjetaBebida(dto.getPercentualGorjetaBebidas());
+
+        return configuracaoRepository.save(config);
     }
 
     /**
@@ -40,19 +49,19 @@ public class ConfiguracaoService {
      * [cite_start]Requisito: Definir preço de entrada (couvert) e percentual de gorjeta. [cite: 37, 38]
      */
     @Transactional
-    public Configuracao atualizarConfiguracao(Configuracao configAtualizada) {
+    public Configuracao atualizarConfiguracao(ConfiguracaoRequestDTO configAtualizada) {
 
         // Validação básica
-        if (configAtualizada.getPrecoCouvert() < 0 || configAtualizada.getPercGorjetaComida() < 0 || configAtualizada.getPercGorjetaBebida() < 0) {
+        if (configAtualizada.getPrecocCouvert() < 0 || configAtualizada.getPercentualGorjetacomidas() < 0 || configAtualizada.getPercentualGorjetaBebidas() < 0) {
             throw new IllegalArgumentException("Nenhum preço ou percentual pode ser negativo.");
         }
 
-        Configuracao config = getConfiguracaoAtual();
+        Configuracao config = buscarConfiguracaoAtual();
 
         // Atualiza os campos
-        config.setPrecoCouvert(configAtualizada.getPrecoCouvert());
-        config.setPercGorjetaComida(configAtualizada.getPercGorjetaComida());
-        config.setPercGorjetaBebida(configAtualizada.getPercGorjetaBebida());
+        config.setPrecoCouvert(configAtualizada.getPrecocCouvert());
+        config.setPercGorjetaComida(configAtualizada.getPercentualGorjetacomidas());
+        config.setPercGorjetaBebida(configAtualizada.getPercentualGorjetaBebidas());
 
         return configuracaoRepository.save(config);
     }

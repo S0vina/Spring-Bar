@@ -1,78 +1,59 @@
 package com.spring.bar.springBar.service;
 
+import com.spring.bar.springBar.dto.ProdutoRequestDTO;
 import com.spring.bar.springBar.entity.Produto;
 import com.spring.bar.springBar.repository.ProdutoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.NoSuchElementException;
 
-@Service
+@Service // Marca esta classe como um bean de service
 public class ProdutoService {
 
-    @Autowired
-    private ProdutoRepository produtoRepository;
+    // Instancia do ProdutoRepository
+    private ProdutoRepository produtoRepository = null;
 
-    /**
-     * Validação básica para Produto.
-     * @param produto Produto a ser validado.
-     */
-    private void validarProduto(Produto produto) {
-        if (produto.getNome() == null || produto.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
-        }
-        if (produto.getPreco() <= 0) {
-            throw new IllegalArgumentException("O preço do produto deve ser maior que zero.");
-        }
-        if (produto.getCategoria() == null) {
-            throw new IllegalArgumentException("A categoria do produto é obrigatória (COMIDA ou BEBIDA).");
-        }
+    // construtor da dependencia
+    public ProdutoService(ProdutoRepository produtoRepository) {
+        this.produtoRepository = produtoRepository;
     }
 
     /**
-     * [ADMIN] Cadastrar novo item no cardápio.
-     */
-    @Transactional
-    public Produto cadastrarProduto(Produto produto) {
-        validarProduto(produto);
-        // Regra de Negócio: Não permite cadastrar produto com o mesmo nome (opcional, mas boa prática)
-        // Você precisaria de um método findByNome() no ProdutoRepository para isso.
-
-        return produtoRepository.save(produto);
-    }
-
-    /**
-     * [ADMIN] Editar item do cardápio.
-     */
-    @Transactional
-    public Produto editarProduto(long id, Produto produtoAtualizado) {
-        Produto produtoExistente = produtoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Produto ID " + id + " não encontrado para edição."));
-
-        validarProduto(produtoAtualizado);
-
-        // Atualiza os campos do produto existente
-        produtoExistente.setNome(produtoAtualizado.getNome());
-        produtoExistente.setPreco(produtoAtualizado.getPreco());
-        produtoExistente.setCategoria(produtoAtualizado.getCategoria());
-
-        return produtoRepository.save(produtoExistente);
-    }
-
-    /**
-     * [ADMIN] Listar todos os itens do cardápio.
+     * Retorna todos os produtos do cardápio.
+     * Usado para a tela de listagem do Administrador.
      */
     public List<Produto> listarTodos() {
         return produtoRepository.findAll();
     }
 
     /**
-     * [ADMIN/GARÇOM] Buscar produto por ID.
+     * Salva ou atualiza um produto no banco de dados.
+     * Usado para o formulário de Cadastro/Edição.
      */
-    public Produto buscarPorId(long id) {
-        return produtoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Produto ID " + id + " não encontrado."));
+    public Produto salvar(Produto produto) {
+        // Aqui você poderia adicionar lógica de negócio, como validar preço > 0
+        return produtoRepository.save(produto);
     }
+
+    // Método para a futura funcionalidade de Edição
+    public Produto buscarPorId(Long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+    }
+
+    // deleta o produto por ID
+    public void deleteById(Long id) {
+        produtoRepository.deleteById(id);
+    }
+
+    public Produto converterDtoParaEntidade(ProdutoRequestDTO dto) {
+        Produto produto = new Produto();
+
+        // Mapeamento manual dos campos do DTO para a entity
+        produto.setNome(dto.getNome());
+        produto.setPreco(dto.getPreco());
+        produto.setCategoria(dto.getCategoria());
+
+        return produto;
+    }
+
 }

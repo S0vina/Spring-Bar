@@ -39,12 +39,19 @@ Conta {
     private List<Pagamento> pagamentos;
 
     // Configuracoes do Bar (serao injetadas pelo Service/Config)
+    @Column(nullable = false)
     private Double percGorjetaComida;
+    @Column(nullable = false)
     private Double percGorjetaBebida;
-    private Double perecCouvertPessoa;
+    @Column(nullable = false)
+    private Double precoCouvertPessoa;
 
     // Log de quando a conta foi aberta
     private LocalDateTime momentoAbertura;
+
+    private int numeroPessoas;
+
+    private Boolean couverHabilitado = true;
 
     public enum StatusConta {
         ABERTA,

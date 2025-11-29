@@ -1,8 +1,10 @@
 package com.spring.bar.springBar.service;
 
+import com.spring.bar.springBar.dto.MesaRequestDTO;
 import com.spring.bar.springBar.entity.Mesa;
 import com.spring.bar.springBar.entity.Mesa.StatusMesa;
 import com.spring.bar.springBar.repository.MesaRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,8 @@ public class MesaService {
      * [ADMIN] Cadastrar nova mesa.
      */
     @Transactional
-    public Mesa cadastrarMesa(Mesa novaMesa) {
-        validarNumeroMesa(novaMesa.getNumero());
+    public Mesa cadastrarMesa(MesaRequestDTO novaMesa) {
+        validarNumeroMesa(novaMesa.ge());
 
         // Regra de Negócio: Garante que o número da mesa é único
         Optional<Mesa> mesaExistente = mesaRepository.findByNumero(novaMesa.getNumero());
@@ -51,7 +53,7 @@ public class MesaService {
      * [ADMIN] Editar mesa existente (apenas número e status - se fechada).
      */
     @Transactional
-    public Mesa editarMesa(long id, Mesa mesaAtualizada) {
+    public Mesa editarMesa(long id, @Valid MesaRequestDTO mesaAtualizada) {
         Mesa mesaExistente = mesaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Mesa ID " + id + " não encontrada para edição."));
 

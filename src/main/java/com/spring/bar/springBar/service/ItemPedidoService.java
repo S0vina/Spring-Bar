@@ -9,22 +9,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class ItemPedidoService {
     private final ItemPedidoRepository itemPedidoRepository;
-    private final ProdutoService produtoServicee;
+    private final ProdutoService produtoService;
     private ContaService contaService;
 
 
     public ItemPedidoService(ItemPedidoRepository itemPedidoRepository, ProdutoService produtoService, ContaService contaService) {
         this.itemPedidoRepository = itemPedidoRepository;
-        this.produtoServicee = produtoService;
+        this.produtoService = produtoService;
         this.contaService = contaService;
     }
 
     public ItemPedido adicionarItem(Long contaId, Long produtoId, int quantidade) {
         Conta conta = contaService.buscarContaPorId(contaId);
-        Produto produto = ProdutoService.buscarPorId(produtoId);
+        Produto produto = produtoService.buscarPorId(produtoId);
 
-        if (conta.getSta
-        tus() != Conta.StatusConta.ABERTA) {
+        if (conta.getStatus() != Conta.StatusConta.ABERTA) {
             throw new RuntimeException("Nao eh possivel adicionar itens a uma conta que nao esta aberta!");
         }
 
@@ -36,7 +35,7 @@ public class ItemPedidoService {
         item.setItemCancelado(false);
 
         // Salva o item
-        return ItemPedidoRepository.save(item);
+        return this.itemPedidoRepository.save(item);
 
     }
 }

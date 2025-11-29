@@ -22,9 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -66,9 +68,7 @@ public class ContaService {
         }
 
         // 1. Atualiza a Mesa e gera token de acesso
-        mesa.setNumPessoas(numPessoas);
         mesa.setStatus(StatusMesa.ABERTA);
-        mesa.setCouverHabilitado(habilitarCouvert);
         mesa.setTokenAcesso(UUID.randomUUID().toString());
         mesaRepository.save(mesa);
 
@@ -76,6 +76,11 @@ public class ContaService {
         Conta novaConta = new Conta();
         novaConta.setMesa(mesa);
         novaConta.setMomentoAbertura(LocalDateTime.now());
+        novaConta.setNumeroPessoas(numPessoas);
+        novaConta.setCouverHabilitado(habilitarCouvert);
+        novaConta.setPrecoCouvertPessoa(configuracaoService.buscarConfiguracaoAtual().getPrecoCouvert());
+        novaConta.setPercGorjetaComida(configuracaoService.buscarConfiguracaoAtual().getPercGorjetaComida());
+        novaConta.setPercGorjetaBebida(configuracaoService.buscarConfiguracaoAtual().getPercGorjetaBebida());
         Conta contaSalva = contaRepository.save(novaConta);
 
         // 3. Lançamento do Couvert (Usa o Produto ID 1 como marcador no ItemPedido)
@@ -147,66 +152,50 @@ public class ContaService {
         return itemPedidoRepository.save(novoItem);
     }
 
-    public double calcularSaldoFinal(int contaId) {
-        Conta conta = contaRepository.findById(Long.valueOf(contaId))
-                .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada para cálculo de saldo."));
+    public double calcularSaldoFinal(long contaId) {
+        Conta conta = contaRepository.findById(contaId)
+                .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada."));
 
-        // NOVO: Obtem as configuracoes dinamicas do sistema
-        Configuracao config = configuracaoService.buscarConfiguracaoAtual();
+        // Filtra os ItemPedidos que NÃO foram cancelados
+        List<ItemPedido> itensValidos = conta.getItens().stream()
+                .filter(item -> !item.getItemCancelado())
+                .collect(Collectors.toList());
 
-        double subtotalComidas = 0.0; // Base para gorjeta de Comida
-        double subtotalBebidas = 0.0; // Base para gorjeta de Bebida
-        double valorCouvert = 0.0;    // Valor total do couvert/ingresso
-        double totalPagamentos = 0.0;
+        // 1. CALCULA SUBTOTAIS
+        double subtotalComida = 0.0;
+        double subtotalBebida = 0.0;
 
-        // 1. Itera sobre os Itens Pedidos Ativos
-        if (conta.getItens() != null) {
-            for (ItemPedido item : conta.getItens()) {
-                if (item.getProduto() != null && item.getItemCancelado() != null && !item.getItemCancelado())
-                {
-                    double precoUnitario;
-
-                    // Lógica Dinâmica para Couvert: Usa o preço da Configuracao
-                    if (item.getProduto().getId() == PRODUTO_ID_COUVBERT) {
-                        precoUnitario = config.getPrecoCouvert();
-                        // Soma no total do couvert e NÃO entra nas bases de gorjeta
-                        valorCouvert += precoUnitario * item.getQuantidade();
-                        continue; // Passa para o próximo item (o couvert não gera gorjeta)
-                    }
-
-                    // Para todos os outros produtos, usa o preço cadastrado no Produto
-                    precoUnitario = item.getProduto().getPreco();
-                    double valorItem = precoUnitario * item.getQuantidade();
-
-                    if (item.getProduto().getCategoria() == categoriaProduto.COMIDA) {
-                        subtotalComidas += valorItem;
-                    } else if (item.getProduto().getCategoria() == categoriaProduto.BEBIDA) {
-                        subtotalBebidas += valorItem;
-                    }
-                }
+        for (ItemPedido item : itensValidos) {
+            double valorItem = item.getProduto().getPreco() * item.getQuantidade();
+            if (item.getProduto().getCategoria() == Produto.categoriaProduto.COMIDA) {
+                subtotalComida += valorItem;
+            } else {
+                subtotalBebida += valorItem;
             }
         }
 
-        // 2. Cálculo das Gorjetas (Usando os percentuais DINÂMICOS)
-        double gorjetaComida = subtotalComidas * config.getPercGorjetaComida();
-        double gorjetaBebida = subtotalBebidas * config.getPercGorjetaBebida();
-        double totalGorjeta = gorjetaComida + gorjetaBebida;
+        // 2. CALCULA GORJETAS (USANDO VALORES CONGELADOS DA CONTA)
+        double gorjetaComida = subtotalComida * conta.getPercGorjetaComida(); // <--- AQUI!
+        double gorjetaBebida = subtotalBebida * conta.getPercGorjetaBebida(); // <--- AQUI!
+        double totalGorjetas = gorjetaComida + gorjetaBebida;
 
-        // 3. Cálculo do Total Bruto (Soma das bases + Couvert + Gorjeta)
-        double totalItens = subtotalComidas + subtotalBebidas;
-        double totalBruto = totalItens + valorCouvert + totalGorjeta;
-
-        // 4. Subtrai Pagamentos Registrados
-        if (conta.getPagamentos() != null)
-        {
-            totalPagamentos = conta.getPagamentos().stream()
-                    .mapToDouble(Pagamento::getValor)
-                    .sum();
+        // 3. CALCULA COUVERT (USANDO VALORES CONGELADOS DA CONTA)
+        double valorCouvert = 0.0;
+        if (conta.getCouverHabilitado()) {
+            valorCouvert = conta.getPrecoCouvertPessoa() * conta.getNumeroPessoas(); // <--- AQUI!
         }
 
-        double saldoFinal = totalBruto - totalPagamentos;
+        // 4. CALCULA TOTAL DE ITENS
+        double totalItens = subtotalComida + subtotalBebida;
+        double valorTotalBruto = totalItens + totalGorjetas + valorCouvert;
 
-        return Math.max(0.0, saldoFinal);
+        // 5. CALCULA PAGAMENTOS JÁ EFETUADOS
+        double totalPago = conta.getPagamentos().stream()
+                .mapToDouble(Pagamento::getValor)
+                .sum();
+
+        // 6. SALDO FINAL
+        return valorTotalBruto - totalPago;
     }
 
     /**
@@ -280,7 +269,7 @@ public class ContaService {
     }
 
     public Conta buscarContaPorId(Long id) {
-        return ContaRepository.findById(id)
+        return contaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Conta nao encontrada com o ID: " + id));
     }
 }

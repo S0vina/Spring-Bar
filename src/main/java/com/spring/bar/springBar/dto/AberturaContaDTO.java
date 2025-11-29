@@ -1,40 +1,24 @@
 package com.spring.bar.springBar.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+
 public class AberturaContaDTO {
+    @NotNull(message = "O número de pessoas é obrigatório.")
+    @Min(value = 1)
+    private int mesaId;
 
-    private int numeroMesa;
+    @NotNull(message = "O número de pessoas é obrigatório.")
+    @Min(value = 1)
     private int numPessoas;
+
+    @NotNull(message = "O número de pessoas é obrigatório.")
     private boolean habilitarCouvert;
-
-    public AberturaContaDTO() {}
-
-    public AberturaContaDTO(int numeroMesa, int numPessoas, boolean habilitarCouvert) {
-        this.numeroMesa = numeroMesa;
-        this.numPessoas = numPessoas;
-        this.habilitarCouvert = habilitarCouvert;
-    }
-
-    public int getNumeroMesa() {
-        return numeroMesa;
-    }
-
-    public void setNumeroMesa(int numeroMesa) {
-        this.numeroMesa = numeroMesa;
-    }
-
-    public int getNumPessoas() {
-        return numPessoas;
-    }
-
-    public void setNumPessoas(int numPessoas) {
-        this.numPessoas = numPessoas;
-    }
-
-    public boolean isHabilitarCouvert() {
-        return habilitarCouvert;
-    }
-
-    public void setHabilitarCouvert(boolean habilitarCouvert) {
-        this.habilitarCouvert = habilitarCouvert;
-    }
 }

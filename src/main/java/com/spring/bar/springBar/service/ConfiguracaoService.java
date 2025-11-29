@@ -32,18 +32,6 @@ public class ConfiguracaoService {
                 });
     }
 
-    public Configuracao atualizarConnfiguracao(ConfiguracaoRequestDTO dto) {
-        // Buscar registro existente ou criar um novo
-        Configuracao config = buscarConfiguracaoAtual();
-
-        // Mapeamento automatico
-        config.setPrecoCouvert(dto.getPrecocCouvert());
-        config.setPercGorjetaComida(dto.getPercentualGorjetacomidas());
-        config.setPercGorjetaBebida(dto.getPercentualGorjetaBebidas());
-
-        return configuracaoRepository.save(config);
-    }
-
     /**
      * [ADMIN] Atualiza as configurações do sistema.
      * [cite_start]Requisito: Definir preço de entrada (couvert) e percentual de gorjeta. [cite: 37, 38]

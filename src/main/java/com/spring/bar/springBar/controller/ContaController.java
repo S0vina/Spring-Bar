@@ -23,12 +23,11 @@ import org.springframework.web.bind.annotation.*;
 public class ContaController {
 
     private final ItemPedidoService itemPedidoService;
+    private final ContaService contaService; // CORREÇÃO: Injeção unificada
 
-    @Autowired
-    private ContaService contaService;
-
-    public ContaController(ItemPedidoService itemPedidoService) {
+    public ContaController(ItemPedidoService itemPedidoService, ContaService contaService) {
         this.itemPedidoService = itemPedidoService;
+        this.contaService = contaService;
     }
 
     // Um bom ControllerAdvice capturaria as exceções e retornaria um HTTP 404 (NoSuchElementException)
@@ -48,7 +47,7 @@ public class ContaController {
     public ResponseEntity<Conta> abrirConta(@RequestBody AberturaContaDTO dadosAbertura) {
         // Usa o DTO para receber os dados
         Conta novaConta = contaService.abrirConta(
-                dadosAbertura.getNumeroMesa(),
+                dadosAbertura.getMesaId(),
                 dadosAbertura.getNumPessoas(),
                 dadosAbertura.isHabilitarCouvert()
         );
@@ -62,7 +61,7 @@ public class ContaController {
      */
     @PostMapping("/{contaId}/pedidos")
     public ResponseEntity<ItemPedido> adicionarPedido(@RequestBody ItemPedidoRequestDTO dto) {
-        ItemPedido novoItem = ItemPedidoService.adicionarItem(
+        ItemPedido novoItem = itemPedidoService.adicionarItem(
                 dto.getContaId(),
                 dto.getProdutoId(),
                 dto.getQuantidade()

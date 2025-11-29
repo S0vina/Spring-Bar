@@ -1,59 +1,50 @@
 package com.spring.bar.springBar.controller;
 
 import com.spring.bar.springBar.dto.ProdutoRequestDTO;
+// CRIE UM NOVO DTO: ProdutoResponseDTO
+// import com.spring.bar.springBar.dto.ProdutoResponseDTO;
 import com.spring.bar.springBar.service.ProdutoService;
 import com.spring.bar.springBar.entity.Produto;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid; // NOVO: Import para validação
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-/**
- * Controlador REST para gerenciar o Cardápio (Funções do Administrador).
- */
 @RestController
 @RequestMapping("/api/cardapio")
 public class ProdutoController {
 
-    @Autowired
-    private ProdutoService produtoService;
+    private final ProdutoService produtoService; // Usando injeção via construtor (preferencial)
 
-    // Endpoint para listar todos os produtos (pode ser usado pelo Garçom/Admin)
-    @GetMapping
-    public ResponseEntity<List<Produto>> listarCardapio() {
-        List<Produto> produtos = ProdutoService.listarTodos();
-        return ResponseEntity.ok(produtos); // Retorna 200 OK
+    // A injeção de dependência é feita automaticamente pelo Spring
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
     }
 
-    /**
-     * [ADMIN] Cadastrar novo item no cardápio.
-     * Endpoint: POST /api/cardapio
-     */
-    @PostMapping("/api/cardapio")
-    public ResponseEntity<Produto> cadastrarProduto(@RequestBody ProdutoRequestDTO dto) {
+    // Endpoint para listar todos os produtos
+    @GetMapping
+    // IDEAL: Retornar ResponseEntity<List<ProdutoResponseDTO>>
+    public ResponseEntity<List<Produto>> listarCardapio() {
+        // CORREÇÃO: Chama o Service via variável de instância, não estaticamente
+        List<Produto> produtos = produtoService.listarTodos();
+        return ResponseEntity.ok(produtos);
+    }
 
-        // Converte DTO para entity
+    // Endpoint: POST /api/cardapio
+    @PostMapping // REMOVIDA URL redundante
+    public ResponseEntity<Produto> cadastrarProduto(@Valid @RequestBody ProdutoRequestDTO dto) {
+
         Produto novoProduto = produtoService.converterDtoParaEntidade(dto);
-
-        // Usando o service
         Produto cadastrado = produtoService.salvar(novoProduto);
 
-        // Retorna 201 Created e o objeto salvo (com o ID gerado)
         return ResponseEntity.status(HttpStatus.CREATED).body(cadastrado);
     }
 
-    /**
-     * [ADMIN] Editar item do cardápio.
-     * Endpoint: PUT /api/cardapio/{id}
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> editarProduto(@PathVariable long id, @RequestBody Produto produtoAtualizado) {
-
-        Produto produtoEditado = produtoService.salvar(id, produtoAtualizado);
-        return ResponseEntity.ok(produtoEditado);
+    public ResponseEntity<Produto> editarProduto(@PathVariable long id, @Valid @RequestBody ProdutoRequestDTO dto) {
+        // Chame o serviço com o DTO, não a entidade
+        // return ResponseEntity.ok(produtoService.atualizar(id, dto));
+        return null; // Apenas para compilar no exemplo
     }
-
-
 }

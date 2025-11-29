@@ -1,15 +1,11 @@
 package com.spring.bar.springBar.controller;
 
-import com.spring.bar.springBar.dto.AberturaContaDTO;
-import com.spring.bar.springBar.dto.CancelamentoDTO;
-import com.spring.bar.springBar.dto.ItemPedidoRequestDTO;
-import com.spring.bar.springBar.dto.PagamentoDTO;
+import com.spring.bar.springBar.dto.*;
 import com.spring.bar.springBar.entity.Conta;
 import com.spring.bar.springBar.entity.ItemPedido;
 import com.spring.bar.springBar.entity.Pagamento;
 import com.spring.bar.springBar.service.ContaService;
 import com.spring.bar.springBar.service.ItemPedidoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,10 +107,13 @@ public class ContaController {
      * Endpoint: PUT /api/contas/{contaId}/fechar
      */
     @PutMapping("/{contaId}/fechar")
-    public ResponseEntity<Void> fecharConta(@PathVariable int contaId) {
-        contaService.fecharConta(contaId);
-        // Retorna 200 OK (sem corpo) indicando sucesso
-        return ResponseEntity.ok().build();
+    // O retorno pode ser um ResponseEntity<Conta> para mostrar o status final ou ResponseEntity<Void>
+    public ResponseEntity<Conta> fecharConta(@PathVariable Long contaId) {
+        // Chama o método no Service
+        Conta contaFechada = contaService.fecharConta(contaId);
+
+        // Retorna 200 OK com o objeto Conta atualizado
+        return ResponseEntity.ok(contaFechada);
     }
 
     /**
@@ -133,7 +132,10 @@ public class ContaController {
         return ResponseEntity.ok(saldo);
     }
 
-    // NOTA: Para retornar o extrato completo (itens, subtotais, gorjeta, couvert e total),
-    // um endpoint adicional (ex: /token/{tokenAcesso}/extrato) e um DTO de Extrato completo
-    // seriam necessários, mas o saldo já atende o requisito principal do Cliente.
+    @PutMapping("/{contaId}/couvert")
+    public ResponseEntity<Conta> atualizarCouvert(@PathVariable Long contaId, @RequestBody HabilitarCouvertDTO dto){
+        Conta contaAtualizada = contaService.atualizarCouvert(contaId, dto.getHabilitado());
+        return ResponseEntity.ok(contaAtualizada);
+
+    }
 }

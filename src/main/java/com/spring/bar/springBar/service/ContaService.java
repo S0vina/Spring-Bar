@@ -218,27 +218,6 @@ public class ContaService {
         return calcularSaldoFinal(conta.getId());
     }
 
-    @Transactional
-    public double fecharConta(int contaId) {
-        Conta conta = contaRepository.findById(Long.valueOf(contaId))
-                .orElseThrow(() -> new NoSuchElementException("Conta " + contaId + " não encontrada para fechamento."));
-
-        double saldo = calcularSaldoFinal(contaId);
-
-        // Regra de Negócio: Conta só pode ser fechada quando o saldo for zero
-        if (saldo > 0.0) {
-            throw new IllegalStateException("A conta ainda possui um saldo de R$" + String.format("%.2f", saldo) + " e não pode ser fechada.");
-        }
-
-        Mesa mesa = conta.getMesa();
-
-        // Altera o status da Mesa para FECHADA e salva
-        mesa.setStatus(StatusMesa.FECHADA);
-        mesaRepository.save(mesa);
-
-        return 0.0; // Saldo é zero ao fechar
-    }
-
     /**
      * Registra pagamento na conta.
      */
@@ -266,6 +245,50 @@ public class ContaService {
         pagamento.setDataPagamento(LocalDateTime.now());
 
         return pagamentoRepository.save(pagamento);
+    }
+
+    /**
+     * [GARÇOM] Habilita ou dispensa o couvert para uma conta aberta.
+     * Requisito: Habilitar/dispensar couvert.
+     */
+    @Transactional
+    public Conta atualizarCouvert(Long contaId, Boolean habilitado) {
+        Conta conta = contaRepository.findById(contaId)
+                .orElseThrow(() -> new NoSuchElementException("Conta ID " + contaId + " não encontrada."));
+
+        if (conta.getStatus() != Conta.StatusConta.ABERTA) {
+            throw new IllegalStateException("Não é possível alterar o status do couvert de uma conta que não está ABERTA.");
+        }
+
+        conta.setCouverHabilitado(habilitado);
+
+        return contaRepository.save(conta);
+    }
+
+    @Transactional
+    public Conta fecharConta(Long id){
+        Conta conta = contaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Conta com id: " + id + " nao encontrada."));
+
+        if(conta.getStatus() == Conta.StatusConta.FECHADA) {
+            throw new IllegalStateException("Essa acao nao pode ser feita a uma conta fecha ja fechada.");
+        }
+
+        double saldoFinal = calcularSaldoFinal(id);
+
+        // Verifica se ha um saldo devedor
+        if(saldoFinal != 0.0) {
+            throw new IllegalStateException("A conta nao pode ser fechada com saldo devedor");
+
+        }
+
+        conta.setStatus(Conta.StatusConta.FECHADA);
+        conta.getMesa().setStatus(StatusMesa.FECHADA); // Define a mesa como livre novamente
+
+        contaRepository.save(conta);
+
+        return conta;
+
     }
 
     public Conta buscarContaPorId(Long id) {

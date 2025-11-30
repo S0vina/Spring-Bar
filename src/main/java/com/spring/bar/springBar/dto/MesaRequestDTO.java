@@ -1,11 +1,34 @@
 package com.spring.bar.springBar.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
+/**
+ * DTO (Data Transfer Object) para receber dados na criação e edição de Mesas.
+ *
+ * NOTA: Esta classe utiliza Lombok para gerar automaticamente:
+ * - Getters e Setters (@Data)
+ * - Construtor sem argumentos (@NoArgsConstructor)
+ * - Construtor com todos os argumentos (@AllArgsConstructor)
+ * * Se o compilador estava reclamando de construtor duplicado, era porque
+ * o construtor sem argumentos estava sendo declarado manualmente e pelo @NoArgsConstructor.
+ */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class MesaRequestDTO {
+
+    @NotNull(message = "O número da mesa não pode ser nulo.")
+    @Min(value = 1, message = "O número da mesa deve ser positivo.")
+    private Integer numero;
+
+    @Min(value = 0, message = "O número de pessoas não pode ser negativo.")
+    private Integer numPessoas;
+
+    // O status e o couverHabilitado podem ser gerenciados pelo Service
+    // Mas incluí campos opcionais para maior flexibilidade na API.
+    private Boolean couverHabilitado;
 }

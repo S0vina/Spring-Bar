@@ -43,11 +43,7 @@ public class ContaController {
     @PostMapping
     public ResponseEntity<Conta> abrirConta(@RequestBody AberturaContaDTO dadosAbertura) {
         // Usa o DTO para receber os dados
-        Conta novaConta = contaService.abrirConta(
-                dadosAbertura.getMesaId(),
-                dadosAbertura.getNumPessoas(),
-                dadosAbertura.isHabilitarCouvert()
-        );
+        Conta novaConta = contaService.abrirConta(dadosAbertura);
         // Retorna 201 Created com a nova conta
         return ResponseEntity.status(HttpStatus.CREATED).body(novaConta);
     }
@@ -82,7 +78,6 @@ public class ContaController {
                 itemPedidoId,
                 dadosCancelamento.getMotivo()
         );
-        // Retorna 200 OK com o item marcado como cancelado.
         return ResponseEntity.ok(itemCancelado);
     }
 
@@ -94,7 +89,8 @@ public class ContaController {
     public ResponseEntity<Pagamento> registrarPagamento(@PathVariable Long contaId, @Valid @RequestBody PagamentoDTO dadosPagamento) {
         Pagamento pagamento = contaService.registrarPagamento(
                 contaId,
-                dadosPagamento // Passa o DTO completo
+                dadosPagamento.getValor(),
+                dadosPagamento.getTipo()
         );
         return ResponseEntity.ok(pagamento);
 

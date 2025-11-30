@@ -3,14 +3,8 @@ package com.spring.bar.springBar.service;
 import com.spring.bar.springBar.dto.ConfiguracaoRequestDTO;
 import com.spring.bar.springBar.entity.Configuracao; // Assumimos que esta Entidade existe
 import com.spring.bar.springBar.repository.ConfiguracaoRepository; // Assumimos que este Repositório existe
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class ConfiguracaoService {
@@ -40,15 +34,15 @@ public class ConfiguracaoService {
     public Configuracao atualizarConfiguracao(ConfiguracaoRequestDTO configAtualizada) {
 
         // Validação básica
-        if (configAtualizada.getPrecocCouvert() < 0 || configAtualizada.getPercentualGorjetacomidas() < 0 || configAtualizada.getPercentualGorjetaBebidas() < 0) {
+        if (configAtualizada.getPrecoCouvert() < 0 || configAtualizada.getPercentualGorjetaComidas() < 0 || configAtualizada.getPercentualGorjetaBebidas() < 0) {
             throw new IllegalArgumentException("Nenhum preço ou percentual pode ser negativo.");
         }
 
         Configuracao config = buscarConfiguracaoAtual();
 
         // Atualiza os campos
-        config.setPrecoCouvert(configAtualizada.getPrecocCouvert());
-        config.setPercGorjetaComida(configAtualizada.getPercentualGorjetacomidas());
+        config.setPrecoCouvert(configAtualizada.getPrecoCouvert());
+        config.setPercGorjetaComida(configAtualizada.getPercentualGorjetaComidas());
         config.setPercGorjetaBebida(configAtualizada.getPercentualGorjetaBebidas());
 
         return configuracaoRepository.save(config);

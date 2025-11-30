@@ -17,6 +17,15 @@ public class Mesa {
     @Column(unique = true, nullable = false)
     private int numero;
 
+    @Column(unique = true, nullable = false)
+    private int numPessoas;
+
+    private Boolean couverHabilitado = true;
+
+    // "Token" unico para acesso do client aos seus dados
+    @Column(unique = true, nullable = true)
+    private String tokenAcesso;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusMesa status = StatusMesa.LIVRE; // Livre, Aberta, Fechada

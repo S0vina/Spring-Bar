@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class ItemPedidoService {
     private final ItemPedidoRepository itemPedidoRepository;
     private final ProdutoService produtoService;
-    private ContaService contaService;
+    private final ContaService contaService;
 
 
     public ItemPedidoService(ItemPedidoRepository itemPedidoRepository, ProdutoService produtoService, ContaService contaService) {

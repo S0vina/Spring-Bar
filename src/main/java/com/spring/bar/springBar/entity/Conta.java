@@ -44,18 +44,14 @@ Conta {
     @Column(nullable = false)
     private Double percGorjetaBebida;
     @Column(nullable = false)
-    private Double precoCouvertPessoa;
-
-    // "Token" unico para acesso do client aos seus dados
-    @Column(unique = true, nullable = true)
-    private String tokenAcesso;
+    private Double precoCouvert;
 
     // Log de quando a conta foi aberta
-    private LocalDateTime momentoAbertura;
+    private LocalDateTime dataAbertura;
+
+    private LocalDateTime dataFechamento;
 
     private int numeroPessoas;
-
-    private Boolean couverHabilitado = true;
 
     public enum StatusConta {
         ABERTA,

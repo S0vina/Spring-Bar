@@ -21,8 +21,6 @@ public class Mesa {
     @Column(nullable = false)
     private StatusMesa status = StatusMesa.LIVRE; // Livre, Aberta, Fechada
 
-    private String tokenAcesso; // "Token" unico para acesso do client aos seus dados
-
     // Relacionamento One-to-one com a Conta (A conta real)
     @OneToOne(mappedBy = "mesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Conta comanda;

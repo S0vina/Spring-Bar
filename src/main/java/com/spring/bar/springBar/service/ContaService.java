@@ -1,6 +1,7 @@
 package com.spring.bar.springBar.service;
 
 
+import com.spring.bar.springBar.dto.ExtratoClienteResponseDTO;
 import com.spring.bar.springBar.dto.PagamentoDTO;
 import com.spring.bar.springBar.entity.Conta;
 import com.spring.bar.springBar.entity.Mesa;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,7 +69,6 @@ public class ContaService {
 
         // 1. Atualiza a Mesa e gera token de acesso
         mesa.setStatus(StatusMesa.ABERTA);
-        mesa.setTokenAcesso(UUID.randomUUID().toString());
         mesaRepository.save(mesa);
 
         // 2. Cria a nova Conta
@@ -76,6 +77,7 @@ public class ContaService {
         novaConta.setMomentoAbertura(LocalDateTime.now());
         novaConta.setNumeroPessoas(numPessoas);
         novaConta.setCouverHabilitado(habilitarCouvert);
+        novaConta.setTokenAcesso(UUID.randomUUID().toString());
         novaConta.setPrecoCouvertPessoa(configuracaoService.buscarConfiguracaoAtual().getPrecoCouvert());
         novaConta.setPercGorjetaComida(configuracaoService.buscarConfiguracaoAtual().getPercGorjetaComida());
         novaConta.setPercGorjetaBebida(configuracaoService.buscarConfiguracaoAtual().getPercGorjetaBebida());
@@ -314,6 +316,80 @@ public class ContaService {
 
         return conta;
 
+    }
+
+    /**
+     * [CLIENTE] Busca todos os detalhes da conta (extrato) usando o token de acesso.
+     * Requisito: Acessar consumo e visualizar detalhes (itens, subtotais, taxas).
+     */
+    @Transactional(readOnly = true)
+    public ExtratoClienteResponseDTO getExtratoPorToken(String tokenAcesso) {
+
+        // 1. Busca a conta pelo Token
+        Conta conta = contaRepository.findByTokenAcesso(tokenAcesso)
+                .orElseThrow(() -> new NoSuchElementException("Conta não encontrada ou token inválido."));
+
+        // 2. Mapeamento de TODOS os itens (incluindo cancelados) para o DTO de Extrato
+        List<ExtratoClienteResponseDTO.ItemExtratoDTO> itensExtrato = conta.getItens().stream()
+                .map(item -> {
+                    double valorItem = item.getProduto().getPreco() * item.getQuantidade();
+
+                    // Mapeamento para o DTO de Item (sem alterar variáveis externas)
+                    ExtratoClienteResponseDTO.ItemExtratoDTO itemDto = new ExtratoClienteResponseDTO.ItemExtratoDTO();
+                    itemDto.setNomeProduto(item.getProduto().getNome());
+                    itemDto.setPrecoUnitario(item.getProduto().getPreco());
+                    itemDto.setQuantidade(item.getQuantidade());
+                    itemDto.setSubtotalItem(valorItem);
+                    itemDto.setCancelado(item.getItemCancelado());
+                    itemDto.setMotivoCancelamento(item.getMotivoCancelamento());
+                    return itemDto;
+                })
+                .collect(Collectors.toList());
+
+
+        // 3. Cálculo funcional dos subtotais (apenas itens NÃO cancelados)
+        Map<Produto.categoriaProduto, Double> subtotaisPorCategoria = conta.getItens().stream()
+                .filter(item -> !item.getItemCancelado()) // Filtra itens válidos
+                .collect(Collectors.groupingBy(
+                        item -> item.getProduto().getCategoria(), // Agrupa por COMIDA/BEBIDA
+                        Collectors.summingDouble(item -> item.getProduto().getPreco() * item.getQuantidade()) // Soma valores
+                ));
+
+        // 4. Extrai os subtotais e calcula taxas
+        double subtotalComida = subtotaisPorCategoria.getOrDefault(Produto.categoriaProduto.COMIDA, 0.0);
+        double subtotalBebida = subtotaisPorCategoria.getOrDefault(Produto.categoriaProduto.BEBIDA, 0.0);
+
+        // Cálculo de Gorjetas (usando os percentuais congelados na Conta)
+        double gorjetaComida = subtotalComida * conta.getPercGorjetaComida();
+        double gorjetaBebida = subtotalBebida * conta.getPercGorjetaBebida();
+        double totalGorjetas = gorjetaComida + gorjetaBebida;
+
+        // Cálculo do Couvert (usando o preço congelado e número de pessoas)
+        double valorCouvert = conta.getCouverHabilitado() ?
+                (conta.getPrecoCouvertPessoa() * conta.getNumeroPessoas()) : 0.0;
+
+        double valorTotalBruto = subtotalComida + subtotalBebida + totalGorjetas + valorCouvert;
+
+        // 5. Soma Pagamentos
+        double totalPago = conta.getPagamentos().stream()
+                .mapToDouble(Pagamento::getValor)
+                .sum();
+
+        // 6. Mapeia para o DTO Final de Resposta
+        ExtratoClienteResponseDTO dto = new ExtratoClienteResponseDTO();
+        dto.setStatusConta(conta.getStatus().name());
+        dto.setNumeroMesa(conta.getMesa().getNumero());
+        dto.setNumeroPessoas(conta.getNumeroPessoas());
+        dto.setItensConsumidos(itensExtrato);
+        dto.setSubtotalComida(subtotalComida);
+        dto.setSubtotalBebida(subtotalBebida);
+        dto.setTotalGorjetas(totalGorjetas);
+        dto.setValorCouvert(valorCouvert);
+        dto.setValorTotalBruto(valorTotalBruto);
+        dto.setTotalPago(totalPago);
+        dto.setSaldoPendente(valorTotalBruto - totalPago);
+
+        return dto;
     }
 
     public Conta buscarContaPorId(Long id) {

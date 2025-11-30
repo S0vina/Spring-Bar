@@ -46,6 +46,10 @@ Conta {
     @Column(nullable = false)
     private Double precoCouvertPessoa;
 
+    // "Token" unico para acesso do client aos seus dados
+    @Column(unique = true, nullable = true)
+    private String tokenAcesso;
+
     // Log de quando a conta foi aberta
     private LocalDateTime momentoAbertura;
 

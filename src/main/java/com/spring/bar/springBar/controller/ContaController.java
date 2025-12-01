@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/contas")
+@CrossOrigin(origins = "*")
 public class ContaController {
 
     private final ItemPedidoService itemPedidoService;

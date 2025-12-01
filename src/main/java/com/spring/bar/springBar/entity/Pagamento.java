@@ -14,7 +14,7 @@ public class Pagamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     // Relacionamento Many-to-one (muitos pagamentos em uma conta)
     @ManyToOne(fetch = FetchType.LAZY)

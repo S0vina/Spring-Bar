@@ -15,6 +15,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/relatorios")
+@CrossOrigin(origins = "*")
 public class RelatorioController {
 
     private final RelatorioService relatorioService;

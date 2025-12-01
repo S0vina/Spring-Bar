@@ -12,7 +12,7 @@ public class ItemPedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     // Relacionamento Many-to-one (muitos itens podem ser pedidos em uma conta)
     @ManyToOne(fetch = FetchType.LAZY)

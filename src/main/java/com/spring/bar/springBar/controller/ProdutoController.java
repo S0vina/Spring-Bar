@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cardapio")
+@CrossOrigin(origins = "*")
 public class ProdutoController {
 
     private final ProdutoService produtoService; // Usando injeção via construtor (preferencial)

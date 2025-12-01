@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 public class CancelamentoDTO {
 
     // Requisito: O Garçom deve enviar o motivo ao cancelar um item.
-    @NotNull(message = "O número de pessoas é obrigatório.")
+    @NotNull(message = "O motivo do cancelamento é obrigatório.")
     private String motivo;
 
-    @NotNull(message = "O número de pessoas é obrigatório.")
+    @NotNull(message = "O motivo do cancelamento é obrigatório.")
     @Min(value = 1)
     private Long itemPedidoID;
 }

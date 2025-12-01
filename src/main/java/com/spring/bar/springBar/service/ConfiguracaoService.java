@@ -41,7 +41,7 @@ public class ConfiguracaoService {
         Configuracao config = buscarConfiguracaoAtual();
 
         // Atualiza os campos
-        config.setPrecoCouvert(configAtualizada.getPrecoCouvert());
+        config.setPrecoCouvertPessoa(configAtualizada.getPrecoCouvert());
         config.setPercGorjetaComida(configAtualizada.getPercentualGorjetaComidas());
         config.setPercGorjetaBebida(configAtualizada.getPercentualGorjetaBebidas());
 

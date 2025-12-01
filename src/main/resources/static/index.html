@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Bar: Painel Completo de Operações</title>
+    <!-- Inclui Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para o tema Art Deco / Japonês */
+        :root {
+            --primary-dark: #064e3b; /* Verde Esmeralda Escuro */
+            --brass-light: #fcd34d; /* Latão Claro (Amarelo Âmbar) */
+            --brass-dark: #b45309; /* Latão Envelhecido (Marrom Cobre) */
+            --cream: #fafaf9; /* Creme/Pedra */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-dark);
+        }
+
+        /* Gradiente de fundo sofisticado */
+        .main-bg {
+            background: linear-gradient(180deg, var(--primary-dark) 0%, #101614 100%);
+        }
+
+        /* Efeito de profundidade para os cards (Luxo) */
+        .card-shadow {
+            /* Sombra escura + borda sutil de latão */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 0 5px rgba(252, 211, 77, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card-shadow:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Estilo para fontes serifadas de luxo (Gatsby) */
+        .font-luxury {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Estilo para o botão principal do Garçom/Admin */
+        .btn-primary {
+            background-color: #fcd34d; /* Amarelo Latão */
+            color: #064e3b; /* Texto Verde Esmeralda */
+            font-weight: 700;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 4px #b45309; /* Sombra escura para profundidade */
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #fed868;
+            box-shadow: 0 2px #b45309;
+            transform: translateY(2px);
+        }
+
+        .select-produto {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            background-color: white;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* Padrão geométrico sutil no footer */
+        .footer-pattern {
+            background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 50%);
+            background-size: 8px 8px;
+        }
+    </style>
+</head>
+<body class="main-bg min-h-screen text-cream">
+
+<!-- CABEÇALHO -->
+<header class="bg-emerald-900 shadow-2xl p-8 text-center border-b-4 border-amber-500/70">
+    <h1 class="text-5xl font-luxury text-amber-300 tracking-widest pb-3 mb-2 inline-block">
+        Spring Bar: O Santuário de Kyoto
+    </h1>
+    <p class="text-xl text-stone-300 mt-2 italic">Exclusividade e Arte em Cada Detalhe.</p>
+</header>
+
+<!-- CONTEÚDO PRINCIPAL: CONTAINER DE TROCA DE TELA -->
+<main id="main-content" class="max-w-7xl mx-auto p-8 py-10 flex-grow">
+
+    <!-- ========================================================= -->
+    <!-- PAINEL PRINCIPAL (Acesso Rápido) -->
+    <!-- ========================================================= -->
+    <div id="painel-principal">
+        <h2 class="text-3xl font-luxury text-amber-300 mb-6 border-b border-amber-500/50 pb-3">Painel de Acesso Rápido</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- PAINEL 1: ADMINISTRADOR -->
+            <div class="bg-stone-50 text-gray-800 p-6 rounded-lg card-shadow">
+                <h3 class="text-2xl font-luxury text-emerald-900 mb-4 border-b border-gray-300 pb-2">👤 Administrador</h3>
+                <div id="admin-area" class="space-y-4">
+                    <p class="text-sm italic">Gestão de Cardápio, Mesas e Regras Financeiras.</p>
+                    <button class="w-full btn-primary" onclick="showAdminCadastros()">
+                        Gerenciar Cardápio & Mesas
+                    </button>
+                    <button class="w-full btn-primary" onclick="showAdminConfig()">
+                        Configurar Taxas & Relatórios
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAINEL 2: GARÇOM -->
+            <div class="bg-stone-50 text-gray-800 p-6 rounded-lg card-shadow">
+                <h3 class="text-2xl font-luxury text-emerald-900 mb-4 border-b border-gray-300 pb-2">👨‍💼 Garçom</h3>
+                <div id="garcom-area" class="space-y-4">
+                    <p class="text-sm italic">Abertura e Operação de Comandas.</p>
+                    <!-- ABRIR CONTA (MANTIDO NA TELA PRINCIPAL PARA ACESSO RÁPIDO) -->
+                    <label for="mesaNum" class="text-sm font-semibold">Mesa/Pessoas:</label>
+                    <div class="flex space-x-2">
+                        <input type="number" id="mesaNum" placeholder="Mesa" class="w-1/2 p-2 border border-gray-300 rounded-md focus:border-emerald-700">
+                        <input type="number" id="numPessoas" placeholder="Pessoas" class="w-1/2 p-2 border border-gray-300 rounded-md focus:border-emerald-700">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="couvertCheck" class="form-checkbox text-emerald-900 h-5 w-5 rounded">
+                        <label for="couvertCheck" class="text-sm font-semibold">Habilitar Couvert?</label>
+                    </div>
+                    <button onclick="abrirContaGarcom()" class="w-full btn-primary bg-emerald-800 hover:bg-emerald-900 text-white shadow-none">
+                        Abrir Conta
+                    </button>
+                    <button onclick="showGarcomPedidos()" class="w-full btn-primary bg-gray-500 hover:bg-gray-600 text-white shadow-none">
+                        Operar Pedidos & Fechar
+                    </button>
+                    <div id="garcom-resultado" class="resultado-box mt-4 p-3 rounded-md border text-xs"></div>
+                </div>
+            </div>
+
+            <!-- PAINEL 3: CLIENTE -->
+            <div class="bg-stone-50 text-gray-800 p-6 rounded-lg card-shadow">
+                <h3 class="text-2xl font-luxury text-emerald-900 mb-4 border-b border-gray-300 pb-2">📱 Cliente</h3>
+                <div id="cliente-area" class="space-y-4">
+                    <p class="text-sm italic">Consulta de Saldo e Extrato (via Token).</p>
+                    <label for="tokenInput" class="text-sm font-semibold">Token de Acesso:</label>
+                    <input type="text" id="tokenInput" placeholder="Ex: Token da Mesa" class="w-full p-2 border border-gray-300 rounded-md focus:border-emerald-700">
+
+                    <button onclick="consultarSaldoCliente()" class="w-full btn-primary bg-emerald-800 hover:bg-emerald-900 text-white shadow-none">
+                        Consultar Saldo
+                    </button>
+                    <div id="cliente-resultado" class="resultado-box mt-4 p-3 rounded-md border text-xs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PAINEL 4: OPERAÇÕES DO GARÇOM (Pedidos, Pagamento, Fechamento) -->
+    <!-- ========================================================= -->
+    <div id="pedidos-pagamento-area" class="bg-stone-50 text-gray-800 p-8 rounded-lg card-shadow mt-10 hidden">
+        <button onclick="hideCurrentPanel('pedidos-pagamento-area')" class="btn-primary mb-6 bg-gray-500 hover:bg-gray-600">
+            ← Voltar ao Menu Principal
+        </button>
+        <h2 class="text-3xl font-luxury text-emerald-900 mb-6 border-b border-gray-300 pb-2">
+            Operação de Comanda: Pedidos e Pagamento
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- COLUNA 1: ADICIONAR PEDIDO -->
+            <div>
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">1. Lançar Pedido</h3>
+
+                <label for="contaIdPedido" class="text-sm font-semibold">ID da Conta:</label>
+                <input type="number" id="contaIdPedido" placeholder="ID da Conta Ativa (Ex: 1)" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="produtoSelect" class="text-sm font-semibold">Produto (Cardápio):</label>
+                <select id="produtoSelect" class="select-produto"></select>
+
+                <label for="quantidadePedido" class="text-sm font-semibold">Quantidade:</label>
+                <input type="number" id="quantidadePedido" placeholder="1" value="1" min="1" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <button onclick="adicionarPedidoGarcom()" class="w-full btn-primary bg-emerald-800 hover:bg-emerald-900 text-white shadow-none">
+                    + Adicionar Item
+                </button>
+                <div id="pedido-resultado" class="resultado-box mt-4 text-xs"></div>
+            </div>
+
+            <!-- COLUNA 2: PAGAMENTO E FECHAMENTO -->
+            <div>
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">2. Pagamento & Fechamento</h3>
+
+                <label for="contaIdPagamento" class="text-sm font-semibold">ID da Conta:</label>
+                <input type="number" id="contaIdPagamento" placeholder="ID da Conta para Pagamento" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="valorPagamento" class="text-sm font-semibold">Valor:</label>
+                <input type="number" id="valorPagamento" placeholder="R$ 50.00" min="0.01" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="tipoPagamento" class="text-sm font-semibold">Tipo:</label>
+                <select id="tipoPagamento" class="select-produto">
+                    <option value="PIX">PIX</option>
+                    <option value="CREDITO">Cartão de Crédito</option>
+                    <option value="DEBITO">Cartão de Débito</option>
+                    <option value="DINHEIRO">Dinheiro</option>
+                </select>
+
+                <button onclick="registrarPagamentoGarcom()" class="w-full btn-primary bg-blue-700 hover:bg-blue-800 text-white shadow-none mt-2">
+                    Registrar Pagamento
+                </button>
+
+                <button onclick="fecharContaGarcom()" class="w-full btn-primary bg-red-700 hover:bg-red-800 text-white shadow-none mt-4">
+                    Fechar Conta (Liquidação Total)
+                </button>
+
+                <div id="pagamento-resultado" class="resultado-box mt-4 text-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PAINEL 5: ADMIN - CADASTROS (Produtos e Mesas) -->
+    <!-- ========================================================= -->
+    <div id="admin-cadastros-area" class="bg-stone-50 text-gray-800 p-8 rounded-lg card-shadow mt-10 hidden">
+        <button onclick="hideCurrentPanel('admin-cadastros-area')" class="btn-primary mb-6 bg-gray-500 hover:bg-gray-600">
+            ← Voltar ao Menu Principal
+        </button>
+        <h2 class="text-3xl font-luxury text-emerald-900 mb-6 border-b border-gray-300 pb-2">
+            Administração: Cadastro de Cardápio
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- CADASTRO DE PRODUTO -->
+            <div class="md:col-span-1 border-r pr-8">
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">Cadastrar Novo Produto</h3>
+
+                <label for="produtoNome" class="text-sm font-semibold">Nome:</label>
+                <input type="text" id="produtoNome" placeholder="Ex: Golden Geisha" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="produtoPreco" class="text-sm font-semibold">Preço:</label>
+                <input type="number" id="produtoPreco" placeholder="120.00" min="0.01" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="produtoCategoria" class="text-sm font-semibold">Categoria:</label>
+                <select id="produtoCategoria" class="select-produto">
+                    <option value="COMIDA">COMIDA</option>
+                    <option value="BEBIDA">BEBIDA</option>
+                </select>
+
+                <button onclick="cadastrarProdutoAdmin()" class="w-full btn-primary bg-emerald-800 hover:bg-emerald-900 text-white shadow-none">
+                    + Cadastrar Produto
+                </button>
+                <div id="admin-cadastro-resultado" class="resultado-box mt-4 text-xs"></div>
+            </div>
+
+            <!-- LISTAGEM DE PRODUTOS/MESAS (PENDENTE) -->
+            <div class="md:col-span-2">
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">Cardápio Atual</h3>
+                <div id="lista-cardapio" class="h-64 overflow-y-auto border p-2 rounded">
+                    <p>Carregando Cardápio...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PAINEL 6: ADMIN - CONFIGURAÇÕES E RELATÓRIOS -->
+    <!-- ========================================================= -->
+    <div id="admin-config-area" class="bg-stone-50 text-gray-800 p-8 rounded-lg card-shadow mt-10 hidden">
+        <button onclick="hideCurrentPanel('admin-config-area')" class="btn-primary mb-6 bg-gray-500 hover:bg-gray-600">
+            ← Voltar ao Menu Principal
+        </button>
+        <h2 class="text-3xl font-luxury text-emerald-900 mb-6 border-b border-gray-300 pb-2">
+            Administração: Configurações & Relatórios
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- CONFIGURAÇÃO DE TAXAS -->
+            <div>
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">1. Configurar Taxas</h3>
+
+                <label for="precoCouvert" class="text-sm font-semibold">Preço Couvert (por Pessoa):</label>
+                <input type="number" id="precoCouvert" placeholder="10.00" min="0" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="gorjetaComida" class="text-sm font-semibold">Gorjeta Comida (%):</label>
+                <input type="number" id="gorjetaComida" placeholder="0.15 (15%)" min="0" max="1" step="0.01" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <label for="gorjetaBebida" class="text-sm font-semibold">Gorjeta Bebida (%):</label>
+                <input type="number" id="gorjetaBebida" placeholder="0.10 (10%)" min="0" max="1" step="0.01" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+                <button onclick="configurarTaxasAdmin()" class="w-full btn-primary bg-blue-700 hover:bg-blue-800 text-white shadow-none">
+                    Atualizar Configurações
+                </button>
+                <div id="admin-config-resultado" class="resultado-box mt-4 text-xs"></div>
+            </div>
+
+            <!-- RELATÓRIOS (Simples) -->
+            <div>
+                <h3 class="text-xl font-luxury text-amber-700 mb-4">2. Relatórios de Vendas</h3>
+                <p class="text-sm">Os relatórios de faturamento devem ser consultados via endpoint API, mas esta área será a interface de visualização futura.</p>
+                <div id="relatorios-area" class="mt-4 p-3 border rounded text-xs">
+                    <p>Funcionalidade pendente de renderização de DTOs de Relatório.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- RODAPÉ ANTERIOR -->
+<footer class="mt-12 p-8 bg-emerald-950 text-stone-300 shadow-inner footer-pattern">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-amber-500/50 pt-4">
+
+        <!-- Horário de Funcionamento -->
+        <div>
+            <h4 class="text-xl font-luxury text-amber-300 mb-3 tracking-wider">Horário Nobre</h4>
+            <p class="text-sm">Terça a Sábado: 18:00 - 04:00</p>
+        </div>
+
+        <!-- Frase de Efeito (Central) -->
+        <div class="md:col-span-1 text-center">
+            <p class="text-2xl font-luxury text-amber-300 mt-4 italic tracking-wide">
+                "Onde a Elegância de Gatsby Encontra a Tradição de Tóquio."
+            </p>
+        </div>
+
+        <!-- Contato -->
+        <div class="md:text-right">
+            <h4 class="text-xl font-luxury text-amber-300 mb-3 tracking-wider">Acesso Exclusivo</h4>
+            <p class="text-sm">Reservas via Conselheiro: (99) 9999-9999</p>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPT DE INTEGRAÇÃO API (Lógica da API) -->
+<script>
+    // URL base da sua API Spring Boot (AJUSTE A PORTA SE NECESSÁRIO, e garanta o @CrossOrigin no backend)
+    const API_BASE_URL = 'http://localhost:8080/api';
+
+    // Variável global para armazenar o cardápio listado
+    let cardapioCache = [];
+    let currentPanelId = 'painel-principal'; // Rastreia qual painel está visível
+
+    // ==========================================================
+    // FUNÇÕES AUXILIARES (AJAX / TRATAMENTO DE ERRO)
+    // ==========================================================
+    async function callApi(endpoint, method = 'GET', body = null) {
+        const url = `${API_BASE_URL}${endpoint}`;
+        const options = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+        };
+
+        if (body) { options.body = JSON.stringify(body); }
+
+        try {
+            const response = await fetch(url, options);
+
+            if (response.status === 204) { return {}; }
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = errorText || `Erro HTTP: ${response.status}`;
+
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    // Tenta extrair a mensagem limpa do RestExceptionHandler
+                    errorMessage = errorJson.detail || errorJson.message || errorText;
+                } catch (e) { /* Não é JSON */ }
+
+                throw new Error(errorMessage);
+            }
+
+            // Tenta retornar JSON, mas se não houver corpo (como em 201 Created com corpo vazio), retorna vazio
+            return response.headers.get('Content-Length') === '0' ? {} : response.json();
+
+        } catch (error) {
+            console.error("Erro na API:", error);
+            throw error;
+        }
+    }
+
+    // ==========================================================
+    // FUNÇÕES DE NAVEGAÇÃO
+    // ==========================================================
+
+    /** Esconde o painel principal e mostra o painel de destino */
+    function showPanel(panelId) {
+        document.getElementById('painel-principal').classList.add('hidden');
+        document.getElementById(panelId).classList.remove('hidden');
+        currentPanelId = panelId; // Atualiza o ID do painel ativo
+    }
+
+    /** Esconde o painel atual e mostra o painel principal */
+    function hideCurrentPanel(panelId) {
+        document.getElementById(panelId).classList.add('hidden');
+        document.getElementById('painel-principal').classList.remove('hidden');
+        currentPanelId = 'painel-principal';
+    }
+
+    // ----------------------------------------------------------
+    // NAVEGAÇÃO DO GARÇOM
+    // ----------------------------------------------------------
+    async function showGarcomPedidos() {
+        showPanel('pedidos-pagamento-area');
+        await carregarCardapio();
+    }
+
+    // ----------------------------------------------------------
+    // NAVEGAÇÃO DO ADMINISTRADOR
+    // ----------------------------------------------------------
+    async function showAdminCadastros() {
+        showPanel('admin-cadastros-area');
+        await carregarCardapioAdminList(); // Carrega Cardápio para listagem
+    }
+
+    async function showAdminConfig() {
+        showPanel('admin-config-area');
+        await carregarConfiguracoes(); // Carrega valores atuais para preencher o formulário
+    }
+
+
+    // ==========================================================
+    // SETUP: ADMIN
+    // ==========================================================
+
+    /** [SETUP] Carrega a lista de produtos para listagem no painel Admin */
+    async function carregarCardapioAdminList() {
+        const listaDiv = document.getElementById('lista-cardapio');
+        listaDiv.innerHTML = '<p class="text-amber-700">Carregando Cardápio...</p>';
+
+        try {
+            const produtos = await callApi(`/cardapio`, 'GET');
+            let html = '<ul class="list-disc pl-5">';
+
+            if (produtos.length === 0) {
+                html = '<p class="text-red-500">Nenhum produto cadastrado.</p>';
+            } else {
+                produtos.forEach(p => {
+                    html += `<li>ID ${p.id}: ${p.nome} (R$ ${p.preco.toFixed(2)}) - ${p.categoria}</li>`;
+                });
+                html += '</ul>';
+            }
+            listaDiv.innerHTML = html;
+
+        } catch (error) {
+            listaDiv.innerHTML = `<p class="text-red-600">❌ Erro ao carregar Cardápio: ${error.message}</p>`;
+        }
+    }
+
+    /** [SETUP] Carrega as configurações atuais para preencher o formulário */
+    async function carregarConfiguracoes() {
+        try {
+            const config = await callApi(`/config`, 'GET');
+            document.getElementById('precoCouvert').value = config.precoCouvertPessoa.toFixed(2);
+            document.getElementById('gorjetaComida').value = config.percGorjetaComida.toFixed(2);
+            document.getElementById('gorjetaBebida').value = config.percGorjetaBebida.toFixed(2);
+        } catch (error) {
+            document.getElementById('admin-config-resultado').innerHTML = `<p class="text-red-600">❌ Erro ao carregar Configurações iniciais.</p>`;
+        }
+    }
+
+    /** [SETUP] Carrega a lista de produtos e preenche o <select> do Garçom */
+    async function carregarCardapio() {
+        const select = document.getElementById('produtoSelect');
+        select.innerHTML = '<option value="">Carregando...</option>';
+
+        try {
+            const produtos = await callApi(`/cardapio`, 'GET');
+            cardapioCache = produtos;
+
+            select.innerHTML = '<option value="" disabled selected>-- Selecione um Produto --</option>';
+            if (produtos.length === 0) {
+                 select.innerHTML = '<option value="">-- Cardápio Vazio --</option>';
+                 return;
+            }
+
+            produtos.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.nome} (R$ ${p.preco.toFixed(2)} - ${p.categoria})`;
+                select.appendChild(option);
+            });
+
+        } catch (error) {
+            select.innerHTML = `<option value="">-- Erro ao carregar Cardápio: ${error.message} --</option>`;
+            console.error('Erro ao carregar cardápio:', error);
+        }
+    }
+
+
+    // ==========================================================
+    // FUNÇÕES DO PERFIL GARÇOM (API)
+    // ==========================================================
+
+    /** [GARÇOM] Abrir Conta - Endpoint: POST /api/contas */
+    async function abrirContaGarcom() {
+        const numeroMesa = parseInt(document.getElementById('mesaNum').value);
+        const numPessoas = parseInt(document.getElementById('numPessoas').value);
+        const habilitarCouvert = document.getElementById('couvertCheck').checked;
+        const resultadoDiv = document.getElementById('garcom-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Processando abertura...</p>';
+
+        if (isNaN(numeroMesa) || numeroMesa <= 0 || isNaN(numPessoas) || numPessoas <= 0) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Verifique o número da mesa e de pessoas (devem ser positivos).</p>`;
+            return;
+        }
+
+        const dto = { numeroMesa: numeroMesa, numPessoas: numPessoas, habilitarCouvert: habilitarCouvert };
+
+        try {
+            const novaConta = await callApi(`/contas`, 'POST', dto);
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-emerald-100 p-3 rounded-md border-l-4 border-emerald-500">
+                    <h4 class="text-lg font-bold text-emerald-800">✅ CONTA ABERTA! (ID: ${novaConta.id})</h4>
+                    <p>Mesa: <strong>${novaConta.mesa.numero}</strong></p>
+                    <p>Token Cliente: <strong class="text-amber-700">${novaConta.mesa.tokenAcesso}</strong></p>
+                </div>
+            `;
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro na Abertura: ${error.message}</p>`;
+        }
+    }
+
+    /** [GARÇOM] Adicionar item à conta. - Endpoint: POST /api/contas/{contaId}/pedidos */
+    async function adicionarPedidoGarcom() {
+        const contaId = document.getElementById('contaIdPedido').value;
+        const produtoId = document.getElementById('produtoSelect').value;
+        const quantidade = parseInt(document.getElementById('quantidadePedido').value);
+        const resultadoDiv = document.getElementById('pedido-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Adicionando item...</p>';
+
+        if (!contaId || !produtoId || isNaN(quantidade) || quantidade <= 0) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Verifique ID da Conta, Produto e Quantidade.</p>`;
+            return;
+        }
+
+        const dto = { contaId: parseInt(contaId), produtoId: parseInt(produtoId), quantidade: quantidade };
+
+        try {
+            const novoItem = await callApi(`/contas/${contaId}/pedidos`, 'POST', dto);
+            const produtoNome = cardapioCache.find(p => p.id == produtoId)?.nome || 'Produto ID ' + produtoId;
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-blue-100 p-3 rounded-md border-l-4 border-blue-500 text-gray-800">
+                    <h4 class="text-lg font-bold">✅ Pedido Lançado!</h4>
+                    <p>Conta ${contaId}: <strong>${quantidade}x ${produtoNome}</strong></p>
+                </div>
+            `;
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro ao Lançar Pedido: ${error.message}</p>`;
+        }
+    }
+
+    /** [GARÇOM] Registrar Pagamento. - Endpoint: POST /api/contas/{contaId}/pagamentos */
+    async function registrarPagamentoGarcom() {
+        const contaId = document.getElementById('contaIdPagamento').value;
+        const valor = parseFloat(document.getElementById('valorPagamento').value);
+        const tipo = document.getElementById('tipoPagamento').value;
+        const resultadoDiv = document.getElementById('pagamento-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Registrando pagamento...</p>';
+
+        if (!contaId || isNaN(valor) || valor <= 0 || !tipo) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Verifique ID da Conta, Valor e Tipo de Pagamento.</p>`;
+            return;
+        }
+
+        const dto = { valor: valor, tipo: tipo };
+
+        try {
+            const pagamento = await callApi(`/contas/${contaId}/pagamentos`, 'POST', dto);
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-green-100 p-3 rounded-md border-l-4 border-green-500 text-gray-800">
+                    <h4 class="text-lg font-bold">✅ Pagamento Registrado!</h4>
+                    <p>Valor: <strong>R$ ${pagamento.valor.toFixed(2)}</strong> (${pagamento.tipo})</p>
+                    <p>ID da Conta: ${contaId}</p>
+                </div>
+            `;
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro ao Pagar: ${error.message}</p>`;
+        }
+    }
+
+    /** [GARÇOM] Fechar Conta. - Endpoint: PUT /api/contas/{contaId}/fechar */
+    async function fecharContaGarcom() {
+        const contaId = document.getElementById('contaIdPagamento').value;
+        const resultadoDiv = document.getElementById('pagamento-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Tentando fechar conta...</p>';
+
+        if (!contaId) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Insira o ID da Conta.</p>`;
+            return;
+        }
+
+        if (!confirm(`Tem certeza que deseja fechar a Conta ${contaId}? O saldo deve ser zero.`)) {
+            resultadoDiv.innerHTML = `<p class="text-gray-600">Operação Cancelada.</p>`;
+            return;
+        }
+
+        try {
+            const contaFechada = await callApi(`/contas/${contaId}/fechar`, 'PUT');
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-red-100 p-3 rounded-md border-l-4 border-red-500 text-gray-800">
+                    <h4 class="text-lg font-bold">✅ CONTA ${contaFechada.id} FECHADA!</h4>
+                    <p>Mesa Livre e Comanda Liquidada.</p>
+                </div>
+            `;
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro ao Fechar: ${error.message}</p>`;
+        }
+    }
+
+
+    // ==========================================================
+    // FUNÇÕES DO PERFIL CLIENTE (API)
+    // ==========================================================
+
+    /** [CLIENTE] Consultar Saldo - Endpoint: GET /api/contas/token/{tokenAcesso}/saldo */
+    async function consultarSaldoCliente() {
+        const token = document.getElementById('tokenInput').value.trim();
+        const resultadoDiv = document.getElementById('cliente-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Aguardando...</p>';
+
+        if (!token) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Por favor, insira o Token de Acesso.</p>`;
+            return;
+        }
+
+        try {
+            const saldo = await callApi(`/contas/token/${token}/saldo`);
+
+            resultadoDiv.innerHTML = `
+                <div class="border-t border-emerald-900 pt-3">
+                    <h4 class="text-lg font-bold text-emerald-800">✅ Consulta Sucesso</h4>
+                    <p class="text-xl mt-1">Saldo Pendente:
+                        <strong class="text-red-600">R$ ${saldo.toFixed(2)}</strong>
+                    </p>
+                </div>
+            `;
+
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ ${error.message}</p>`;
+        }
+    }
+
+    // ==========================================================
+    // FUNÇÕES DO PERFIL ADMINISTRADOR (API)
+    // ==========================================================
+
+    /** [ADMIN] Cadastrar Produto - Endpoint: POST /api/cardapio */
+    async function cadastrarProdutoAdmin() {
+        const nome = document.getElementById('produtoNome').value.trim();
+        const preco = parseFloat(document.getElementById('produtoPreco').value);
+        const categoria = document.getElementById('produtoCategoria').value;
+        const resultadoDiv = document.getElementById('admin-cadastro-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Enviando dados...</p>';
+
+        if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Preencha Nome, Preço (>0) e Categoria.</p>`;
+            return;
+        }
+
+        const dto = { nome, preco, categoria };
+
+        try {
+            const novoProduto = await callApi(`/cardapio`, 'POST', dto);
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-blue-100 p-3 rounded-md border-l-4 border-blue-500 text-gray-800">
+                    <h4 class="text-lg font-bold">✅ Produto Cadastrado!</h4>
+                    <p>${novoProduto.nome} (R$ ${novoProduto.preco.toFixed(2)})</p>
+                </div>
+            `;
+            carregarCardapioAdminList(); // Atualiza a lista na tela
+            carregarCardapio(); // Atualiza o select do garçom
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro ao Cadastrar: ${error.message}</p>`;
+        }
+    }
+
+    /** [ADMIN] Configurar Taxas - Endpoint: PUT /api/config */
+    async function configurarTaxasAdmin() {
+        const precoCouvert = parseFloat(document.getElementById('precoCouvert').value);
+        const gorjetaComida = parseFloat(document.getElementById('gorjetaComida').value);
+        const gorjetaBebida = parseFloat(document.getElementById('gorjetaBebida').value);
+        const resultadoDiv = document.getElementById('admin-config-resultado');
+        resultadoDiv.innerHTML = '<p class="text-amber-600">Atualizando configurações...</p>';
+
+        if (isNaN(precoCouvert) || isNaN(gorjetaComida) || isNaN(gorjetaBebida)) {
+             resultadoDiv.innerHTML = `<p class="text-red-600">❌ Todos os campos de taxa devem ser números válidos.</p>`;
+             return;
+        }
+        if (precoCouvert < 0 || gorjetaComida < 0 || gorjetaBebida < 0) {
+             resultadoDiv.innerHTML = `<p class="text-red-600">❌ Valores não podem ser negativos.</p>`;
+             return;
+        }
+
+        const dto = {
+            precoCouvert: precoCouvert,
+            percentualGorjetaComidas: gorjetaComida,
+            percentualGorjetaBebidas: gorjetaBebida
+        };
+
+        try {
+            const configAtualizada = await callApi(`/config`, 'PUT', dto);
+
+            resultadoDiv.innerHTML = `
+                <div class="bg-green-100 p-3 rounded-md border-l-4 border-green-500 text-gray-800">
+                    <h4 class="text-lg font-bold">✅ Configurações Salvas!</h4>
+                    <p>Couvert: R$ ${configAtualizada.precoCouvertPessoa.toFixed(2)} | Gorjeta Comida: ${(configAtualizada.percGorjetaComida * 100).toFixed(0)}%</p>
+                </div>
+            `;
+        } catch (error) {
+            resultadoDiv.innerHTML = `<p class="text-red-600">❌ Erro ao Configurar: ${error.message}</p>`;
+        }
+    }
+</script>
+</body>
+</html>

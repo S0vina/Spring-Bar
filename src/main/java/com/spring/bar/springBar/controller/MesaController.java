@@ -16,6 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/mesas")
+@CrossOrigin(origins = "*")
 public class MesaController {
 
     private final MesaService mesaService;

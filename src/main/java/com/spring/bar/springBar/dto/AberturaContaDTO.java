@@ -11,14 +11,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class AberturaContaDTO {
-    @NotNull(message = "O número de pessoas é obrigatório.")
-    @Min(value = 1)
-    private int mesaId;
+
+    // Renomeado de 'mesaId' para 'numeroMesa' para maior clareza,
+    // assumindo que é o campo usado para buscar a mesa no ContaService.
+    @NotNull(message = "O número da mesa é obrigatório.")
+    @Min(value = 1, message = "O número da mesa deve ser positivo.")
+    private Long numeroMesa;
 
     @NotNull(message = "O número de pessoas é obrigatório.")
-    @Min(value = 1)
-    private int numPessoas;
+    @Min(value = 1, message = "O número de pessoas deve ser no mínimo 1.")
+    private Integer numPessoas;
 
-    @NotNull(message = "O número de pessoas é obrigatório.")
+    // Tipo primitivo 'boolean' não pode ser nulo, então o @NotNull foi removido.
+    // O valor default é 'false' caso não seja enviado no JSON (se for um campo opcional).
+    // Se não for fornecido no JSON, a flag permanecerá 'false'.
     private boolean habilitarCouvert;
 }

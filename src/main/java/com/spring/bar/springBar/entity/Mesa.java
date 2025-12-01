@@ -1,6 +1,7 @@
 package com.spring.bar.springBar.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,16 +15,17 @@ public class Mesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
+    @Min(value = 1)
     private Integer numero;
 
     @Column(nullable = false)
-    private int numPessoas;
+    private Integer numPessoas;
 
-    private Boolean couverHabilitado = true;
+    private Boolean couverHabilitado;
 
     // "Token" unico para acesso do client aos seus dados
-    @Column(length = 255)
+    @Column(nullable = true)
     private String tokenAcesso;
 
     @Enumerated(EnumType.STRING)

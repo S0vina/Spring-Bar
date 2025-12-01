@@ -21,9 +21,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class MesaRequestDTO {
 
+    @Min(value = 0, message = "O número de pessoas não pode ser negativo.")
     private Integer Numero;
 
-    @Min(value = 0, message = "O número de pessoas não pode ser negativo.")
     private Integer numPessoas;
 
     // O status e o couverHabilitado podem ser gerenciados pelo Service

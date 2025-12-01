@@ -67,9 +67,9 @@ public class ContaService {
     private double calcularTotalCouvert(Conta conta) {
         Mesa mesa = conta.getMesa();
         // Verifica se couvert está habilitado E se o preço foi definido (copiado)
-        if (mesa.getCouverHabilitado() != null && mesa.getCouverHabilitado() && conta.getPrecoCouvert() != null) {
+        if (mesa.getCouverHabilitado() != null && mesa.getCouverHabilitado() && conta.getPrecoCouvertPessoa() != null) {
             // O couvert é calculado pelo Preço Copiado na Conta * Número de Pessoas na Mesa
-            return conta.getPrecoCouvert() * mesa.getNumPessoas();
+            return conta.getPrecoCouvertPessoa() * mesa.getNumPessoas();
         }
         return 0.0;
     }
@@ -81,11 +81,11 @@ public class ContaService {
     @Transactional
     public Conta abrirConta(AberturaContaDTO dto) {
         // 1. Busca e valida a Mesa
-        Mesa mesa = mesaRepository.findByNumero(dto.getMesaId())
-                .orElseThrow(() -> new NoSuchElementException("Mesa " + dto.getMesaId() + " não encontrada."));
+        Mesa mesa = mesaRepository.findByNumero(Math.toIntExact(dto.getNumeroMesa()))
+                .orElseThrow(() -> new NoSuchElementException("Mesa " + dto.getNumeroMesa() + " não encontrada."));
 
         if (mesa.getStatus() != StatusMesa.LIVRE) {
-            throw new IllegalStateException("A mesa " + dto.getMesaId() + " não está LIVRE.");
+            throw new IllegalStateException("A mesa " + dto.getNumeroMesa() + " não está LIVRE.");
         }
 
         // 2. Busca as Configurações Globais
@@ -109,7 +109,7 @@ public class ContaService {
         // 5. Copia as configurações de preço/percentuais para a Conta para histórico
         novaConta.setPercGorjetaComida(config.getPercGorjetaComida());
         novaConta.setPercGorjetaBebida(config.getPercGorjetaBebida());
-        novaConta.setPrecoCouvert(config.getPrecoCouvert()); // Copia o Preço do Couvert
+        novaConta.setPrecoCouvertPessoa(config.getPrecoCouvertPessoa()); // Copia o Preço do Couvert
         novaConta.setDataAbertura(LocalDateTime.now());
 
         // 6. Salva e retorna a Conta. O mapeamento OneToOne em Mesa garante que a referência (comanda) será atualizada

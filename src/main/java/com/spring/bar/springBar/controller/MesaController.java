@@ -40,7 +40,7 @@ public class MesaController {
      * Endpoint: POST /api/mesas
      */
     @PostMapping
-    public ResponseEntity<Mesa> cadastrarMesa(@Valid @RequestBody MesaRequestDTO novaMesaDTO) {
+    public ResponseEntity<Mesa> cadastrarMesa(@RequestBody MesaRequestDTO novaMesaDTO) {
         // O @Valid garante que as regras do DTO (numero > 0, not null) sejam checadas antes de entrar no service
         Mesa mesa = mesaService.cadastrarMesa(novaMesaDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(mesa); // Retorna 201 Created
@@ -60,7 +60,7 @@ public class MesaController {
      * [ADMIN] Excluir mesa.
      * Endpoint: DELETE /api/mesas/{id}
      */
-    @DeleteMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> excluirMesa(@PathVariable long id) {
         mesaService.excluirMesa(id);
         return ResponseEntity.noContent().build(); // Retorna 204 No Content

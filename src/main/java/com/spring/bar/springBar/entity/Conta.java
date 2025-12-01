@@ -14,23 +14,22 @@ import java.time.LocalDateTime;
 @Table(name = "Contas")
 @Data
 @NoArgsConstructor
-public class
-Conta {
+public class Conta { // Corrigido o nome da classe
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     // Relacionamento One-to-one (A conta pertence a apenas uma mesa)
+    // O Cascade é importante aqui se quisermos que a conta seja salva ao salvar a mesa, mas o ContaService está salvando a Conta
     @OneToOne
-    @JoinColumn(name = "mesaId", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "numeroMesa", referencedColumnName = "id", nullable = false)
     private Mesa mesa;
 
     @Enumerated(EnumType.STRING)
     private StatusConta status = StatusConta.ABERTA;
 
     // Itens pedidos (produtos)
-    // Se a conta for deletada, seus pedidos sao CASCADE.ALL
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens;
 
@@ -43,15 +42,17 @@ Conta {
     private Double percGorjetaComida;
     @Column(nullable = false)
     private Double percGorjetaBebida;
+
     @Column(nullable = false)
-    private Double precoCouvert;
+    private Double precoCouvertPessoa;
 
     // Log de quando a conta foi aberta
     private LocalDateTime dataAbertura;
 
     private LocalDateTime dataFechamento;
 
-    private int numeroPessoas;
+    @Column(nullable = false) // Garantindo que o número de pessoas seja obrigatório
+    private Integer numeroPessoas;
 
     public enum StatusConta {
         ABERTA,

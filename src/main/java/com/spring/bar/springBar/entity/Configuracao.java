@@ -16,7 +16,7 @@ public class Configuracao {
 
     // Requisito: Definir preço de entrada (couvert)
     @Column(nullable = false)
-    private Double precoCouvert = 0.0;
+    private Double precoCouvertPessoa = 1.0;
 
     // Requisito: Definir percentual de gorjeta para comidas
     @Column(nullable = false)

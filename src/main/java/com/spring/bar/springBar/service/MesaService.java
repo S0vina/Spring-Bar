@@ -66,13 +66,13 @@ public class MesaService {
     @Transactional
     public Mesa cadastrarMesa(MesaRequestDTO dto) {
         // 1. Validação
-        validarNumeroMesa(dto.getNumero());
+        //validarNumeroMesa(dto.getNumero());
 
         // 2. Regra de Negócio: Garante que o número da mesa é único
-        Optional<Mesa> mesaExistente = mesaRepository.findByNumero(dto.getNumero());
-        if (mesaExistente.isPresent()) {
-            throw new IllegalStateException("O número da mesa " + dto.getNumero() + " já está em uso por outra mesa.");
-        }
+        //Optional<Mesa> mesaExistente = mesaRepository.findByNumero(dto.getNumero());
+        //if (mesaExistente.isPresent()) {
+         //   throw new IllegalStateException("O número da mesa " + dto.getNumero() + " já está em uso por outra mesa.");
+        //}
 
         // 3. Conversão para Entidade e Salva
         Mesa novaMesa = converterDtoParaEntidade(dto);

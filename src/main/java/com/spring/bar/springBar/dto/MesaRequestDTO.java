@@ -21,9 +21,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class MesaRequestDTO {
 
-    @NotNull(message = "O número da mesa não pode ser nulo.")
-    @Min(value = 1, message = "O número da mesa deve ser positivo.")
-    private Integer numero;
+    private Integer Numero;
 
     @Min(value = 0, message = "O número de pessoas não pode ser negativo.")
     private Integer numPessoas;

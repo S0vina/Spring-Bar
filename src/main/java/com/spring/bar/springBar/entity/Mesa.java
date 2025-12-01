@@ -12,18 +12,18 @@ public class Mesa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-    @Column(unique = true, nullable = false)
-    private int numero;
+    @Column(nullable = false)
+    private Integer numero;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private int numPessoas;
 
     private Boolean couverHabilitado = true;
 
     // "Token" unico para acesso do client aos seus dados
-    @Column(unique = true, nullable = true)
+    @Column(length = 255)
     private String tokenAcesso;
 
     @Enumerated(EnumType.STRING)
